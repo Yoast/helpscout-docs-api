@@ -1,0 +1,25 @@
+{
+  "name": "helpscout-docs-api",
+  "description": "Sync content to the Helpscout docs API",
+  "plugin": {
+    "glotpress": "https://translate.yoast.com",
+    "glotpress_path": "helpscout-docs-api",
+    "textdomain": "helpscout-docs-api"
+  },
+  "pot": {
+    "reportmsgidbugsto": "https://github.com/yoast/helpscout-docs-api/issues",
+    "languageteam": "Yoast Translate <translations@yoast.com>",
+    "lasttranslator": "Yoast Translate Team <translations@yoast.com>"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yoast/helpscout-docs-api"
+  },
+  "devDependencies": {
+    "@yoast/grunt-plugin-tasks": "1.4.2"
+  },
+  "yoast": {
+    "pluginVersion": "0.1"
+  },
+  "dependencies": {}
+}
