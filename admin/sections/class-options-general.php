@@ -102,7 +102,10 @@ class Options_General extends Options_Admin implements Options_Section {
 	 * @return array
 	 */
 	private function get_sites() {
-		$response = HelpScout_Request::get( 'sites', [ 'with_site_id' => false ] );
+		if ( Options::get( 'api-key' ) === '' || ! isset( $_GET['page'] ) || $_GET['page'] !== 'helpscout-docs-api' ) {
+			return [];
+		}
+		$response = HelpScout_Request::get( 'sites' );
 		$response = json_decode( wp_remote_retrieve_body( $response ) );
 		$sites    = [];
 		foreach ( $response->sites->items as $site ) {
@@ -118,6 +121,9 @@ class Options_General extends Options_Admin implements Options_Section {
 	 * @return array
 	 */
 	private function get_collections() {
+		if ( Options::get( 'api-key' ) === '' || ! isset( $_GET['page'] ) || $_GET['page'] !== 'helpscout-docs-api' ) {
+			return [];
+		}
 		$response    = HelpScout_Request::get( 'collections' );
 		$response    = json_decode( wp_remote_retrieve_body( $response ) );
 		$collections = [];

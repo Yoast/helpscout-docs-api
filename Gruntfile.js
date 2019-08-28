@@ -50,7 +50,6 @@ module.exports = function( grunt ) {
 			php: [
 				"*.php",
 				"admin/**/*.php",
-				"frontend/**/*.php",
 				"includes/**/*.php",
 			],
 			phptests: "tests/**/*.php",

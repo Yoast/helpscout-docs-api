@@ -93,7 +93,7 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 				] );
 			echo '<p>';
 			printf( 'There are %d %s, of which %d are not indexed. ', $count->publish, $post_type->labels->name, count( $non_indexed[ $post_type_name ] ) );
-			if ( count( $non_indexed ) > 0 ) {
+			if ( count( $non_indexed[ $post_type_name ] ) > 0 ) {
 				printf( '<a href="' . add_query_arg( [ 'index' => $post_type->name ] ) . '" class="button">Index %s</a> <br/>', $post_type->labels->name );
 			}
 			echo '</p>';
