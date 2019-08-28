@@ -74,22 +74,31 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 	}
 
 	public function indexation_section() {
+		if ( Options::get( 'api-key' ) === '' || ! isset( $_GET['page'] ) || $_GET['page'] !== 'helpscout-docs-api' ) {
+			return false;
+		}
+
 		$non_indexed = [];
 		foreach ( Options::get( 'post-types' ) as $post_type_name => $on ) {
 			$post_type                      = get_post_type_object( $post_type_name );
 			$count                          = wp_count_posts( $post_type_name );
 			$non_indexed[ $post_type_name ] = get_posts(
 				[
+					'fields'         => 'ids',
 					'post_type'      => $post_type_name,
 					'posts_per_page' => - 1,
 					'post_status'    => 'publish',
 					'meta_query'     => [
+						'relation' => 'AND',
 						[
 							'key'     => '_helpscout_data',
 							'compare' => 'NOT EXISTS',
 						],
+						[
+							'key'     => 'random_key_' . rand(10000,1000000),
+							'compare' => 'NOT EXISTS',
+						],
 					],
-					'fields'         => 'ids',
 				] );
 			echo '<p>';
 			printf( 'There are %d %s, of which %d are not indexed. ', $count->publish, $post_type->labels->name, count( $non_indexed[ $post_type_name ] ) );
