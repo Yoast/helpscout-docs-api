@@ -98,6 +98,11 @@ class Admin {
 	 * @return void
 	 */
 	public function transition_post_status( $new_status, $old_status, $post ) {
+		$enabled_post_types = Options::get( 'post-types' );
+		if ( $enabled_post_types[ $post->post_type ] !== 'on' ) {
+			return;
+		}
+
 		if ( $new_status === 'publish' ) {
 			HelpScout_Article::create( $post->ID );
 			HelpScout_Redirect::create( $post->ID );

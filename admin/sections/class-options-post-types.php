@@ -86,10 +86,9 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 				[
 					'fields'         => 'ids',
 					'post_type'      => $post_type_name,
-					'posts_per_page' => - 1,
+					'posts_per_page' => 25,
 					'post_status'    => 'publish',
 					'meta_query'     => [
-						'relation' => 'AND',
 						[
 							'key'     => '_helpscout_data',
 							'compare' => 'NOT EXISTS',
@@ -99,7 +98,7 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 			echo '<p>';
 			printf( 'There are %d %s, of which %d are not indexed. ', $count->publish, $post_type->labels->name, count( $non_indexed[ $post_type_name ] ) );
 			if ( count( $non_indexed[ $post_type_name ] ) > 0 ) {
-				printf( '<a href="' . add_query_arg( [ 'index' => $post_type->name ] ) . '" class="button">Index %s</a> <br/>', $post_type->labels->name );
+				printf( '<a href="' . admin_url( 'options-general.php?page=helpscout-docs-api&index=' . $post_type->name ) . '" class="button">Index %s</a> <br/>', $post_type->labels->name );
 			}
 			echo '</p>';
 		}
