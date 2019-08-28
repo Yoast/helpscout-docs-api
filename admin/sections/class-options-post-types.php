@@ -93,11 +93,7 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 						[
 							'key'     => '_helpscout_data',
 							'compare' => 'NOT EXISTS',
-						],
-						[
-							'key'     => 'random_key_' . rand(10000,1000000),
-							'compare' => 'NOT EXISTS',
-						],
+						]
 					],
 				] );
 			echo '<p>';
