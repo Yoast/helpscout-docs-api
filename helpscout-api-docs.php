@@ -42,7 +42,9 @@ class Control {
 			return;
 		}
 
-		require __DIR__ . '/vendor/autoload.php';
+		if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
+			require __DIR__ . '/vendor/autoload.php';
+		}
 
 		add_action( 'plugins_loaded', array( $this, 'init' ) );
 	}
