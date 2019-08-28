@@ -119,7 +119,7 @@ class HelpScout_Article {
 			'status'       => 'published',
 			'slug'         => $post->post_name,
 			'name'         => $post->post_title,
-			'text'         => $post->post_content,
+			'text'         => do_shortcode( $post->post_content ),
 		];
 	}
 }
