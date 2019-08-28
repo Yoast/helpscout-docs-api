@@ -9,13 +9,13 @@ jQuery( document ).ready( function( $ ) {
 	} );
 
 	$( "#submit" ).click( function(){
-		$( "#yst_active_tab" ).val( $( ".yoast_tab.active" ).attr( "id" ) );
+		$( "#hs_docs_active_tab" ).val( $( ".yoast_tab.active" ).attr( "id" ) );
 	});
 
 	// Init.
 	var activeTab = window.location.hash.replace( "#top#", "" );
-	if ( $( "#yst_active_tab" ).val() !== "" ) {
-		activeTab = $( "#yst_active_tab" ).val();
+	if ( $( "#hs_docs_active_tab" ).val() !== "" ) {
+		activeTab = $( "#hs_docs_active_tab" ).val();
 	}
 
 	// Default to first tab.

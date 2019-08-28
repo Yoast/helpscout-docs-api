@@ -40,13 +40,11 @@ class HelpScout_Request {
 	public static function get( $endpoint, $args = [] ) {
 		$args = self::add_auth( $args );
 
-		$cache_key = md5( Options::get( 'api-key' ) . $endpoint . json_encode( $args ) );
+		$cache_key = md5( Options::get( 'api-key' ) . $endpoint . json_encode( $args, JSON_UNESCAPED_SLASHES ) );
 		$cache     = get_transient( $cache_key );
 		if ( ! $cache ) {
-			$with_site_id = isset( $args['with_site_id'] ) ? $args['with_site_id'] : false;
-			unset( $args['with_site_id'] );
 
-			$cache = wp_remote_get( self::get_endpoint_url( $endpoint, $with_site_id ), $args );
+			$cache = wp_remote_get( self::get_endpoint_url( $endpoint ), $args );
 			set_transient( $cache_key, $cache );
 		}
 
@@ -67,8 +65,9 @@ class HelpScout_Request {
 			[ 'Content-Type' => 'application/json' ]
 		);
 		$args            = self::add_auth( $args );
+		$endpoint        = self::get_endpoint_url( $endpoint );
 
-		return wp_remote_post( self::get_endpoint_url( $endpoint ), $args );
+		return wp_remote_post( $endpoint, $args );
 	}
 
 	/**
@@ -80,12 +79,38 @@ class HelpScout_Request {
 	 * @return array|\WP_Error Response array or WP Error.
 	 */
 	public static function put( $endpoint, $args ) {
-		$args['headers'] = array_merge(
-			isset( $args['headers'] ) ? $args['headers'] : [],
-			[ 'Content-Type' => 'application/json' ]
-		);
-		$args['method']  = 'PUT';
-		$args            = self::add_auth( $args );
+		return self::custom_http( 'PUT', $endpoint, $args );
+	}
+
+	/**
+	 * Performs a DELETE request.
+	 *
+	 * @param string $endpoint The endpoint to request to.
+	 *
+	 * @return array|\WP_Error Response array or WP Error.
+	 */
+	public static function delete( $endpoint ) {
+		return self::custom_http( 'DELETE', $endpoint );
+	}
+
+	/**
+	 * Performs a HTTP request of a type you specify.
+	 *
+	 * @param string $method   The HTTP method to use.
+	 * @param string $endpoint The endpoint to request to.
+	 * @param array  $args     The arguments for this request.
+	 *
+	 * @return array|\WP_Error Response array or WP Error.
+	 */
+	private static function custom_http( $method, $endpoint, $args = [] ) {
+		if ( $args !== [] ) {
+			$args['headers'] = array_merge(
+				isset( $args['headers'] ) ? $args['headers'] : [],
+				[ 'Content-Type' => 'application/json' ]
+			);
+		}
+		$args['method'] = $method;
+		$args           = self::add_auth( $args );
 
 		return wp_remote_request( self::get_endpoint_url( $endpoint ), $args );
 	}
@@ -94,15 +119,11 @@ class HelpScout_Request {
 	 * Turn the endpoint into a full endpoint URL.
 	 *
 	 * @param string $endpoint The endpoint to use.
-	 * @param bool   $with_site_id
 	 *
 	 * @return string Endpoint URL.
 	 */
-	private static function get_endpoint_url( $endpoint, $with_site_id = true ) {
+	private static function get_endpoint_url( $endpoint ) {
 		$endpoint = 'https://docsapi.helpscout.net/v1/' . $endpoint;
-		if ( $with_site_id ) {
-			$endpoint = add_query_arg( 'siteId', Options::get( 'site-id' ), $endpoint );
-		}
 
 		return $endpoint;
 	}

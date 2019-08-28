@@ -36,6 +36,7 @@ class Options_Admin extends Options {
 
 		$sections = array(
 			new Options_General(),
+			new Options_Post_Types(),
 		);
 
 		foreach ( $sections as $section ) {
@@ -63,11 +64,8 @@ class Options_Admin extends Options {
 	 * @return array
 	 */
 	public function sanitize_options_on_save( $new_options ) {
-		//		print_r( $_POST );
-		//		die;
-
-		if ( isset( $_POST['yst_active_tab'] ) ) {
-			set_transient( 'yst_active_tab', $_POST['yst_active_tab'] );
+		if ( isset( $_POST['hs_docs_active_tab'] ) ) {
+			set_transient( 'hs_docs_active_tab', $_POST['hs_docs_active_tab'] );
 		}
 		foreach ( $new_options as $key => $value ) {
 			switch ( self::$option_var_types[ $key ] ) {

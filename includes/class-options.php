@@ -21,6 +21,7 @@ class Options {
 		'api-key'       => '',
 		'site-id'       => '',
 		'collection-id' => '',
+		'post-types'    => [],
 	];
 
 	/**
@@ -32,6 +33,7 @@ class Options {
 		'api-key'       => 'string',
 		'site-id'       => 'string',
 		'collection-id' => 'string',
+		'post-types'    => 'array',
 	];
 
 	/**

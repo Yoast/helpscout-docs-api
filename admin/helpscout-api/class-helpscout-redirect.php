@@ -19,9 +19,44 @@ class HelpScout_Redirect {
 	 * @return array|\WP_Error Response array or WP Error.
 	 */
 	public static function create( $post_id ) {
-		$resp = HelpScout_Request::post( 'redirects', self::request_body( $post_id ) );
+		$data = get_post_meta( $post_id, '_helpscout_data', true );
+		if ( isset( $data['redirectId'] ) ) {
+			$resp = self::update( $data['redirectId'], $post_id );
+			self::set_post_data( $resp, $post_id );
+
+			return $resp;
+		}
+
+		$body = self::request_body( $post_id );
+		if ( $body === [] ) {
+			return [ 'error' => 'something went wrong.' ];
+		}
+
+		$resp = HelpScout_Request::post( 'redirects', $body );
+		self::set_post_data( $resp, $post_id );
 
 		return $resp;
+	}
+
+	/**
+	 * Update a post's HelpScout data.
+	 *
+	 * @param \WP_Error|array $resp    A WP Remote request response
+	 * @param int             $post_id The ID of the post to create or update in HelpScout docs.
+	 *
+	 * @return array The new HelpScout data.
+	 */
+	private static function set_post_data( $resp, $post_id ) {
+		if ( is_wp_error( $resp ) || $resp['response']['code'] !== 200 ) {
+			return [ 'error' => 'Request was not successful.' ];
+		}
+		$data               = get_post_meta( $post_id, '_helpscout_data', true );
+		$header             = wp_remote_retrieve_header( $resp, 'Location' );
+		$data['redirectId'] = str_replace( 'https://docsapi.helpscout.net/v1/redirects/', '', $header );
+
+		update_post_meta( $post_id, '_helpscout_data', $data );
+
+		return $data;
 	}
 
 	/**
@@ -33,7 +68,11 @@ class HelpScout_Redirect {
 	 * @return array|\WP_Error Response array or WP Error.
 	 */
 	public static function update( $redirect_id, $post_id ) {
-		$resp = HelpScout_Request::put( 'redirects/' . $redirect_id, self::request_body( $post_id ) );
+		$body = self::request_body( $post_id );
+		if ( $body === [] ) {
+			return [ 'error' => 'something went wrong.' ];
+		}
+		$resp = HelpScout_Request::put( 'redirects/' . $redirect_id, $body );
 
 		return $resp;
 	}
@@ -46,9 +85,12 @@ class HelpScout_Redirect {
 	 * @return string The slug.
 	 */
 	private static function get_helpscout_slug( $post_id ) {
-		$hs_data = get_post_meta( $post_id, '_published_to_helpscout', true );
+		$hs_data = get_post_meta( $post_id, '_helpscout_data', true );
 
-		return 'article/' . $hs_data['number'] . '-' . $hs_data['slug'];
+		if ( ! isset( $hs_data['slug'] ) || ! isset( $hs_data['number'] ) ) {
+			return false;
+		}
+		return '/article/' . $hs_data['number'] . '-' . $hs_data['slug'];
 	}
 
 	/**
@@ -59,14 +101,17 @@ class HelpScout_Redirect {
 	 * @return array The WP request arguments.
 	 */
 	private static function request_body( $post_id ) {
+		$slug = self::get_helpscout_slug( $post_id );
+		if ( ! $slug ) {
+			return [];
+		}
+		$body = [
+			'siteId'     => Options::get( 'site-id' ),
+			'urlMapping' => $slug,
+			'redirect'   => get_permalink( $post_id ),
+		];
 		return [
-			'body' => json_encode(
-				[
-					'siteId'     => Options::get( 'site-id' ),
-					'urlMapping' => self::get_helpscout_slug( $post_id ),
-					'redirect'   => 'https://yoast.com/yoast-seo-11-9/' // get_permalink( $post_id ),
-				]
-			),
+			'body' => json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		];
 	}
 }

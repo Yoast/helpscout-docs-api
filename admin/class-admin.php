@@ -27,10 +27,11 @@ class Admin {
 	 * @link   https://codex.wordpress.org/Function_Reference/add_filter
 	 */
 	public function __construct() {
-		add_filter( 'plugin_action_links', array( $this, 'add_action_link' ), 10, 2 );
+		add_filter( 'plugin_action_links', [ $this, 'add_action_link' ], 10, 2 );
 
-		add_action( 'publish_post', array( $this, 'insert_post' ) );
-		add_action( 'admin_menu', array( $this, 'admin_init' ) );
+		add_action( 'publish_post', [ $this, 'insert_post' ] );
+		add_action( 'admin_menu', [ $this, 'admin_init' ] );
+		add_action( 'transition_post_status', [ $this, 'transition_post_status' ], 10, 3 );
 	}
 
 	/**
@@ -85,5 +86,24 @@ class Admin {
 		}
 
 		return $links;
+	}
+
+	/**
+	 * Makes sure the content in HelpScout docs stays in sync with our content.
+	 *
+	 * @param string   $new_status New post status.
+	 * @param string   $old_status Old post status.
+	 * @param \WP_Post $post       Post object.
+	 *
+	 * @return void
+	 */
+	public function transition_post_status( $new_status, $old_status, $post ) {
+		if ( $new_status === 'publish' ) {
+			HelpScout_Article::create( $post->ID );
+			HelpScout_Redirect::create( $post->ID );
+
+			return;
+		}
+		HelpScout_Article::delete( $post->ID );
 	}
 }

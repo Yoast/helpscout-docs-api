@@ -19,12 +19,16 @@ class HelpScout_Article {
 	 * @return array|\WP_Error Response array or WP Error.
 	 */
 	public static function create( $post_id ) {
-		$hs_data = get_post_meta( $post_id, '_published_to_helpscout', true );
+		$hs_data = get_post_meta( $post_id, '_helpscout_data', true );
 		if ( is_array( $hs_data ) ) {
 			return self::update( $post_id );
 		}
+		$body = self::get_post_data( $post_id );
+		if ( $body === [] ) {
+			return [ 'error' => 'No content' ];
+		}
 		$args = [
-			'body' => json_encode( self::get_post_data( $post_id ) ),
+			'body' => json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		];
 		$resp = HelpScout_Request::post( 'articles?reload=true', $args );
 
@@ -42,16 +46,34 @@ class HelpScout_Article {
 	 */
 	public static function update( $post_id ) {
 		$post_data = self::get_post_data( $post_id );
-		$hs_data   = get_post_meta( $post_id, '_published_to_helpscout', true );
+		$hs_data   = get_post_meta( $post_id, '_helpscout_data', true );
 
 		$args = [
-			'body' => json_encode( $post_data ),
+			'body' => json_encode( $post_data, JSON_UNESCAPED_SLASHES ),
 		];
 		$resp = HelpScout_Request::put( 'articles/' . $hs_data['id'] . '?reload=true', $args );
 
 		self::set_post_data( $resp, $post_id );
 
 		return $resp;
+	}
+
+	/**
+	 * Deletes a post from HelpScout.
+	 *
+	 * @param int $post_id The ID of the post to delete.
+	 *
+	 * @return array|\WP_Error Response array or WP Error.
+	 */
+	public static function delete( $post_id ) {
+		$hs_data = get_post_meta( $post_id, '_helpscout_data', true );
+
+		if ( isset( $hs_data['id'] ) ) {
+			$resp = HelpScout_Request::delete( 'articles/' . $hs_data['id'] );
+			delete_post_meta( $post_id, '_helpscout_data' );
+
+			return $resp;
+		}
 	}
 
 	/**
@@ -73,15 +95,13 @@ class HelpScout_Article {
 			'slug'         => $body->article->slug,
 			'number'       => $body->article->number,
 		];
-		update_post_meta( $post_id, '_published_to_helpscout', $data );
-
-		echo '<pre>' . print_r( $data, 1 ) . '</pre>';
+		update_post_meta( $post_id, '_helpscout_data', $data );
 
 		return $data;
 	}
 
 	/**
-	 * Retrieves the HelpScout data from post meta.
+	 * Retrieves the HelpScout data from post data.
 	 *
 	 * @param int $post_id The ID of the post to create or update in HelpScout docs.
 	 *
@@ -89,6 +109,10 @@ class HelpScout_Article {
 	 */
 	private static function get_post_data( $post_id ) {
 		$post = get_post( $post_id );
+
+		if ( empty( $post->post_content ) ) {
+			return [];
+		}
 
 		return [
 			'collectionId' => Options::get( 'collection-id' ),

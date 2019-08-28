@@ -144,11 +144,6 @@ class Options_General extends Options_Admin implements Options_Section {
 	 */
 	public function api_keys_intro() {
 		$this->intro_helper( __( 'Set your HelpScout API keys.', 'helpscout-docs-api' ) );
-
-		HelpScout_Article::create( 373 );
-		$resp = HelpScout_Redirect::update( 373 );
-
-		echo '<pre>' . print_r( $resp, 1 ) . '</pre>';
 	}
 
 }
