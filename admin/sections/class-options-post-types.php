@@ -97,12 +97,12 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 			$post_type   = get_post_type_object( $post_type_name );
 			$count_total = wp_count_posts( $post_type_name );
 
-			$query                                   = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = '%s' AND ID NOT IN ( SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_helpscout_data' )", $post_type_name );
+			$query                                   = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = '%s' AND post_status = 'publish' AND post_password = '' AND ID NOT IN ( SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_helpscout_data' )", $post_type_name );
 			$non_indexed_post_ids[ $post_type_name ] = $wpdb->get_col( $query );
 			$non_indexed_count[ $post_type_name ]    = count( $non_indexed_post_ids[ $post_type_name ] );
 
 			echo '<p>';
-			printf( 'There are %d %s, of which %d are not indexed. ', $count_total->publish, $post_type->labels->name, $non_indexed_count );
+			printf( 'There are %d %s, of which %d are not indexed. ', $count_total->publish, $post_type->labels->name, $non_indexed_count[ $post_type_name ] );
 			if ( count( $non_indexed_post_ids[ $post_type_name ] ) > 0 ) {
 				printf( '<a href="' . admin_url( 'options-general.php?page=helpscout-docs-api&index=' . $post_type->name ) . '" class="button">Index %s</a> <br/>', $post_type->labels->name );
 			}
@@ -113,6 +113,10 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 			if ( isset( $_GET['index'] ) && $_GET['index'] === $post_type_name ) {
 				if ( $non_indexed_count[ $post_type_name ] ) {
 					foreach ( $non_indexed_post_ids as $post_id ) {
+						// Exclude noindexed posts.
+						if ( get_post_meta( $post_id, '_yoast_wpseo_meta-robots-noindex', true ) ) {
+							continue;
+						}
 						HelpScout_Article::create( $post_id );
 						HelpScout_Redirect::create( $post_id );
 						echo '.';

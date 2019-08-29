@@ -108,8 +108,10 @@ class Options_General extends Options_Admin implements Options_Section {
 		$response = HelpScout_Request::get( 'sites' );
 		$response = json_decode( wp_remote_retrieve_body( $response ) );
 		$sites    = [];
-		foreach ( $response->sites->items as $site ) {
-			$sites[ $site->id ] = $site->title . ' <code>' . $site->subDomain . '</code>';
+		if ( isset( $response->sites->items ) && count( $response->sites->items ) > 0 ) {
+			foreach ( $response->sites->items as $site ) {
+				$sites[ $site->id ] = $site->title . ' <code>' . $site->subDomain . '</code>';
+			}
 		}
 
 		return $sites;
