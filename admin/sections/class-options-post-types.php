@@ -111,8 +111,8 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 
 		foreach ( $enabled_post_types as $post_type_name => $on ) {
 			if ( isset( $_GET['index'] ) && $_GET['index'] === $post_type_name ) {
-				if ( $non_indexed_count[ $post_type_name ] ) {
-					foreach ( $non_indexed_post_ids as $post_id ) {
+				if ( $non_indexed_count[ $post_type_name ] > 0 ) {
+					foreach ( $non_indexed_post_ids[ $post_type_name ] as $post_id ) {
 						// Exclude noindexed posts.
 						if ( get_post_meta( $post_id, '_yoast_wpseo_meta-robots-noindex', true ) ) {
 							continue;
