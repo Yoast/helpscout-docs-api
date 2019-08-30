@@ -18,10 +18,12 @@ class Options {
 	 * @var array
 	 */
 	public static $option_defaults = [
-		'api-key'       => '',
-		'site-id'       => '',
-		'collection-id' => '',
-		'post-types'    => [],
+		'api-key'           => '',
+		'site-id'           => '',
+		'collection-id'     => '',
+		'collection-prefix' => '',
+		'post-types'        => [],
+		'collections'       => [],
 	];
 
 	/**
@@ -30,10 +32,12 @@ class Options {
 	 * @var array
 	 */
 	public static $option_var_types = [
-		'api-key'       => 'string',
-		'site-id'       => 'string',
-		'collection-id' => 'string',
-		'post-types'    => 'array',
+		'api-key'           => 'string',
+		'site-id'           => 'string',
+		'collection-id'     => 'string',
+		'collection-prefix' => 'string',
+		'post-types'        => 'array',
+		'collections'       => 'array',
 	];
 
 	/**
@@ -123,7 +127,7 @@ class Options {
 	}
 
 	/**
-	 * Returns the Yoast_SEO_Granular_Control options.
+	 * Gets a key from our options.
 	 *
 	 * @param string $key The option to retrieve.
 	 *
@@ -135,5 +139,19 @@ class Options {
 		}
 
 		return self::$options[ $key ];
+	}
+
+	/**
+	 * Sets a key in our options.
+	 *
+	 * @param string $key   The option to retrieve.
+	 * @param mixed  $value The new value.
+	 *
+	 * @return bool False if value was not updated and true if value was updated.
+	 */
+	public static function set( $key, $value ) {
+		self::$options[ $key ] = $value;
+
+		return update_option( self::$option_name, self::$options );
 	}
 }

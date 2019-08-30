@@ -11,6 +11,8 @@ namespace HelpScout_Docs_API;
  * CRUD for Articles in HelpScout docs.
  */
 class HelpScout_Article {
+	private static $endpoint = 'articles';
+
 	/**
 	 * Creates an article in HelpScout.
 	 *
@@ -19,7 +21,7 @@ class HelpScout_Article {
 	 * @return array|\WP_Error Response array or WP Error.
 	 */
 	public static function create( $post_id ) {
-		$hs_data = get_post_meta( $post_id, '_helpscout_data', true );
+		$hs_data = HelpScout_Post_Data::get( $post_id );
 		if ( is_array( $hs_data ) ) {
 			return self::update( $post_id );
 		}
@@ -30,7 +32,7 @@ class HelpScout_Article {
 		$args = [
 			'body' => json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		];
-		$resp = HelpScout_Request::post( 'articles?reload=true', $args );
+		$resp = HelpScout_Request::post( self::$endpoint . '?reload=true', $args );
 
 		self::set_post_data( $resp, $post_id );
 
@@ -46,12 +48,12 @@ class HelpScout_Article {
 	 */
 	public static function update( $post_id ) {
 		$post_data = self::get_post_data( $post_id );
-		$hs_data   = get_post_meta( $post_id, '_helpscout_data', true );
+		$hs_data   = HelpScout_Post_Data::get( $post_id );
 
 		$args = [
 			'body' => json_encode( $post_data, JSON_UNESCAPED_SLASHES ),
 		];
-		$resp = HelpScout_Request::put( 'articles/' . $hs_data['id'] . '?reload=true', $args );
+		$resp = HelpScout_Request::put( self::$endpoint . '/' . $hs_data['id'] . '?reload=true', $args );
 
 		self::set_post_data( $resp, $post_id );
 
@@ -66,11 +68,11 @@ class HelpScout_Article {
 	 * @return array|\WP_Error Response array or WP Error.
 	 */
 	public static function delete( $post_id ) {
-		$hs_data = get_post_meta( $post_id, '_helpscout_data', true );
+		$hs_data = HelpScout_Post_Data::get( $post_id );
 
 		if ( isset( $hs_data['id'] ) ) {
-			$resp = HelpScout_Request::delete( 'articles/' . $hs_data['id'] );
-			delete_post_meta( $post_id, '_helpscout_data' );
+			$resp = HelpScout_Request::delete( self::$endpoint . '/' . $hs_data['id'] );
+			HelpScout_Post_Data::delete( $post_id );
 
 			return $resp;
 		}
@@ -95,7 +97,7 @@ class HelpScout_Article {
 			'slug'         => $body->article->slug,
 			'number'       => $body->article->number,
 		];
-		update_post_meta( $post_id, '_helpscout_data', $data );
+		HelpScout_Post_Data::set( $post_id, $data );
 
 		return $data;
 	}
@@ -114,19 +116,53 @@ class HelpScout_Article {
 			return [];
 		}
 
-		$keywords = get_post_meta( $post_id, 'search_keywords', true );
+		$keywords     = get_post_meta( $post_id, 'search_keywords', true );
 		$keywords_arr = [];
 		if ( ! empty( $keywords ) ) {
 			$keywords_arr = explode( ',', $keywords );
 		}
 
 		return [
-			'collectionId' => Options::get( 'collection-id' ),
+			'collectionId' => self::get_collection( $post->post_type ),
 			'status'       => 'published',
 			'slug'         => $post->post_name,
 			'name'         => $post->post_title,
-			'text'         => do_shortcode( $post->post_content ),
-			'keywords'     => $keywords_arr
+			'text'         => self::prepare_content( $post->post_content ),
+			'keywords'     => $keywords_arr,
 		];
+	}
+
+	/**
+	 * Retrieves the collection ID for the post type.
+	 *
+	 * @param string $post_type The post type to get the collection for.
+	 *
+	 * @return false|string
+	 */
+	private static function get_collection( $post_type ) {
+		static $post_types;
+		if ( ! isset( $post_types[ $post_type ] ) ) {
+			$post_types[ $post_type ] = HelpScout_Collection::get_id( $post_type );
+			if ( ! $post_types[ $post_type ] ) {
+				$post_types[ $post_type ] = HelpScout_Collection::create( $post_type );
+			}
+		}
+
+		return $post_types[ $post_type ];
+	}
+
+	/**
+	 * Prepare the post content for HelpScout.
+	 *
+	 * @param string $post_content The post content.
+	 *
+	 * @return string $post_content The post content.
+	 */
+	private static function prepare_content( $post_content ) {
+		$post_content = do_shortcode( $post_content );
+		$post_content = str_replace( ' &amp; ', '&', $post_content );
+		$post_content = str_replace( '&nbsp;', ' ', $post_content );
+
+		return $post_content;
 	}
 }

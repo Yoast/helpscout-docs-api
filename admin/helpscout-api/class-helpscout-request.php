@@ -122,7 +122,7 @@ class HelpScout_Request {
 	 *
 	 * @return string Endpoint URL.
 	 */
-	private static function get_endpoint_url( $endpoint ) {
+	public static function get_endpoint_url( $endpoint ) {
 		$endpoint = 'https://docsapi.helpscout.net/v1/' . $endpoint;
 
 		return $endpoint;
