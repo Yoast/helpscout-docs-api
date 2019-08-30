@@ -92,6 +92,7 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 
 		$non_indexed_post_ids = [];
 		$non_indexed_count    = [];
+		$excluded_posts       = $wpdb->get_col( "SELECT post_id FROM wp_postmeta WHERE meta_key IN ( '_yoast_wpseo_meta-robots-noindex', 'search_exclude' )" );
 
 		foreach ( $enabled_post_types as $post_type_name => $on ) {
 			$post_type   = get_post_type_object( $post_type_name );
@@ -99,6 +100,7 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 
 			$query                                   = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = '%s' AND post_status = 'publish' AND post_password = '' AND ID NOT IN ( SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '_helpscout_data' )", $post_type_name );
 			$non_indexed_post_ids[ $post_type_name ] = $wpdb->get_col( $query );
+			$non_indexed_post_ids[ $post_type_name ] = array_diff( $non_indexed_post_ids[ $post_type_name ], $excluded_posts );
 			$non_indexed_count[ $post_type_name ]    = count( $non_indexed_post_ids[ $post_type_name ] );
 
 			echo '<p>';
@@ -113,10 +115,6 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 			if ( isset( $_GET['index'] ) && $_GET['index'] === $post_type_name ) {
 				if ( $non_indexed_count[ $post_type_name ] > 0 ) {
 					foreach ( $non_indexed_post_ids[ $post_type_name ] as $post_id ) {
-						// Exclude noindexed posts.
-						if ( get_post_meta( $post_id, '_yoast_wpseo_meta-robots-noindex', true ) ) {
-							continue;
-						}
 						HelpScout_Article::create( $post_id );
 						HelpScout_Redirect::create( $post_id );
 						echo '.';

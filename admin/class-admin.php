@@ -104,6 +104,10 @@ class Admin {
 		}
 
 		if ( $new_status === 'publish' ) {
+			if ( get_post_meta( $post->ID, 'search_exclude', true ) || get_post_meta( $post->ID, '_yoast_wpseo_meta-robots-noindex', true ) ) {
+				HelpScout_Article::delete( $post->ID );
+				return;
+			}
 			HelpScout_Article::create( $post->ID );
 			HelpScout_Redirect::create( $post->ID );
 

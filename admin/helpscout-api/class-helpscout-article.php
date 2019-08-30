@@ -114,12 +114,19 @@ class HelpScout_Article {
 			return [];
 		}
 
+		$keywords = get_post_meta( $post_id, 'search_keywords', true );
+		$keywords_arr = [];
+		if ( ! empty( $keywords ) ) {
+			$keywords_arr = explode( ',', $keywords );
+		}
+
 		return [
 			'collectionId' => Options::get( 'collection-id' ),
 			'status'       => 'published',
 			'slug'         => $post->post_name,
 			'name'         => $post->post_title,
 			'text'         => do_shortcode( $post->post_content ),
+			'keywords'     => $keywords_arr
 		];
 	}
 }
