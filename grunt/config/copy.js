@@ -49,4 +49,15 @@ module.exports = {
 		"composer.lock": [ "<%= files.artifact %>/composer.lock" ],
 		"composer.json": [ "<%= files.artifact %>/composer.json" ],
 	},
+	"css-files": {
+		files: [
+			{
+				expand: true,
+				cwd: "css/src",
+				src: ["**/**.css"],
+				flatten: false,
+				dest: "css/dist/",
+			},
+		],
+	}
 };

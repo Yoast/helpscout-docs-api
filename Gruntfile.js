@@ -26,7 +26,6 @@ module.exports = function( grunt ) {
 				return this.grunt + "config/";
 			},
 			css: "css/dist/",
-			sass: "css/src/",
 			grunt: "grunt/",
 			assets: "svn-assets/",
 			js: "js/",
@@ -39,9 +38,6 @@ module.exports = function( grunt ) {
 			css: [
 				"css/dist/*.css",
 				"!css/dist/*.min.css",
-			],
-			sass: [
-				"css/src/*.scss",
 			],
 			js: [
 				"js/*.js",
@@ -72,9 +68,6 @@ module.exports = function( grunt ) {
 			grunt: "Gruntfile.js",
 			artifact: "artifact",
 			artifactComposer: "artifact-composer",
-		},
-		sassFiles: {
-			"css/dist/admin.css": "css/src/admin.scss",
 		},
 		pkg: pkg,
 	};
