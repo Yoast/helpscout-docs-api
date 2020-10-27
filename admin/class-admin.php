@@ -28,8 +28,6 @@ class Admin {
 	 */
 	public function __construct() {
 		add_filter( 'plugin_action_links', [ $this, 'add_action_link' ], 10, 2 );
-
-		add_action( 'publish_post', [ $this, 'insert_post' ] );
 		add_action( 'admin_menu', [ $this, 'admin_init' ] );
 		add_action( 'transition_post_status', [ $this, 'transition_post_status' ], 10, 3 );
 	}
