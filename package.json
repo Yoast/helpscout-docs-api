@@ -16,7 +16,7 @@
     "url": "https://github.com/Yoast/helpscout-docs-api"
   },
   "devDependencies": {
-    "@yoast/grunt-plugin-tasks": "^1.7.1"
+    "@yoast/grunt-plugin-tasks": "^2.0.0"
   },
   "yoast": {
     "pluginVersion": "0.1"
