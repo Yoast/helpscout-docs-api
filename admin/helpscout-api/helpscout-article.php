@@ -1,16 +1,17 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin\HelpScout_API;
 
 /**
  * CRUD for Articles in HelpScout docs.
  */
 class HelpScout_Article {
+
+	/**
+	 * Endpoint slug.
+	 *
+	 * @var string
+	 */
 	private static $endpoint = 'articles';
 
 	/**
@@ -30,7 +31,7 @@ class HelpScout_Article {
 			return [ 'error' => 'No content' ];
 		}
 		$args = [
-			'body' => json_encode( $body, JSON_UNESCAPED_SLASHES ),
+			'body' => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		];
 		$resp = HelpScout_Request::post( self::$endpoint . '?reload=true', $args );
 
@@ -51,7 +52,7 @@ class HelpScout_Article {
 		$hs_data   = HelpScout_Post_Data::get( $post_id );
 
 		$args = [
-			'body' => json_encode( $post_data, JSON_UNESCAPED_SLASHES ),
+			'body' => wp_json_encode( $post_data, JSON_UNESCAPED_SLASHES ),
 		];
 		$resp = HelpScout_Request::put( self::$endpoint . '/' . $hs_data['id'] . '?reload=true', $args );
 
@@ -81,7 +82,7 @@ class HelpScout_Article {
 	/**
 	 * Update a post's HelpScout data.
 	 *
-	 * @param \WP_Error|array $resp    A WP Remote request response
+	 * @param \WP_Error|array $resp    A WP Remote request response.
 	 * @param int             $post_id The ID of the post to create or update in HelpScout docs.
 	 *
 	 * @return array The new HelpScout data.
@@ -90,7 +91,7 @@ class HelpScout_Article {
 		if ( is_wp_error( $resp ) || $resp['response']['code'] !== 200 ) {
 			return [ 'error' => 'Request was not successful.' ];
 		}
-		$body = json_decode( wp_remote_retrieve_body( $resp ) );
+		$body = wp_json_decode( wp_remote_retrieve_body( $resp ) );
 		$data = [
 			'id'           => $body->article->id,
 			'collectionId' => $body->article->collectionId,

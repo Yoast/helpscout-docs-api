@@ -1,20 +1,22 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin\Sections;
+
+use Yoast\HelpScout_Docs_API\Admin\HelpScout_API\HelpScout_Request;
+use Yoast\HelpScout_Docs_API\Admin\Options_Admin;
+use Yoast\HelpScout_Docs_API\Includes\Options;
 
 /**
  * Adds general options.
  */
 class Options_General extends Options_Admin implements Options_Section {
+
 	/**
+	 * The page slug for the settings.
+	 *
 	 * @var string
 	 */
-	var $page = 'helpscout-docs-api-general';
+	public $page = 'helpscout-docs-api-general';
 
 	/**
 	 * Registers the options section.
@@ -84,14 +86,14 @@ class Options_General extends Options_Admin implements Options_Section {
 			add_settings_field(
 				$key,
 				$label,
-				array( $this, 'input_radio' ),
+				[ $this, 'input_radio' ],
 				$this->page,
 				$section,
-				array(
+				[
 					'name'   => $key,
 					'value'  => Options::get( $key ),
 					'values' => $values[ $key ],
-				)
+				]
 			);
 		}
 	}
@@ -102,6 +104,7 @@ class Options_General extends Options_Admin implements Options_Section {
 	 * @return array
 	 */
 	private function get_sites() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- false positive.
 		if ( Options::get( 'api-key' ) === '' || ! isset( $_GET['page'] ) || $_GET['page'] !== 'helpscout-docs-api' ) {
 			return [];
 		}
@@ -110,6 +113,7 @@ class Options_General extends Options_Admin implements Options_Section {
 		$sites    = [];
 		if ( isset( $response->sites->items ) && count( $response->sites->items ) > 0 ) {
 			foreach ( $response->sites->items as $site ) {
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- property is not ours.
 				$sites[ $site->id ] = $site->title . ' <code>' . $site->subDomain . '</code>';
 			}
 		}
@@ -123,6 +127,7 @@ class Options_General extends Options_Admin implements Options_Section {
 	 * @return array
 	 */
 	private function get_collections() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- false positive.
 		if ( Options::get( 'api-key' ) === '' || ! isset( $_GET['page'] ) || $_GET['page'] !== 'helpscout-docs-api' ) {
 			return [];
 		}
@@ -153,5 +158,4 @@ class Options_General extends Options_Admin implements Options_Section {
 	public function api_keys_intro() {
 		$this->intro_helper( __( 'Set your HelpScout API keys.', 'helpscout-docs-api' ) );
 	}
-
 }

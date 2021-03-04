@@ -1,11 +1,8 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin;
+
+use Yoast\HelpScout_Docs_API\Includes\Options;
 
 /**
  * Backend Class for the Yoast HelpScout Docs API plugin options.
@@ -23,7 +20,7 @@ class Options_Admin extends Options {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_init', [ $this, 'admin_init' ] );
 
 		parent::__construct();
 	}
@@ -32,18 +29,17 @@ class Options_Admin extends Options {
 	 * Register the needed option and its settings sections.
 	 */
 	public function admin_init() {
-		register_setting( self::$option_group, parent::$option_name, array( $this, 'sanitize_options_on_save' ) );
+		register_setting( self::$option_group, parent::$option_name, [ $this, 'sanitize_options_on_save' ] );
 
-		$sections = array(
+		$sections = [
 			new Options_General(),
 			new Options_Post_Types(),
-		);
+		];
 
 		foreach ( $sections as $section ) {
 			$section->register();
 		}
 	}
-
 
 	/**
 	 * Sanitizes and trims a string.
@@ -64,8 +60,10 @@ class Options_Admin extends Options {
 	 * @return array
 	 */
 	public function sanitize_options_on_save( $new_options ) {
-		if ( isset( $_POST['hs_docs_active_tab'] ) ) {
-			set_transient( 'hs_docs_active_tab', $_POST['hs_docs_active_tab'] );
+		$nonce = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+		if ( wp_verify_nonce( $nonce, 'helpscout-docs-api' ) && isset( $_POST['hs_docs_active_tab'] ) ) {
+			$active_tab = filter_input( INPUT_POST, 'hs_docs_active_tab', FILTER_SANITIZE_STRING );
+			set_transient( 'hs_docs_active_tab', $active_tab );
 		}
 		foreach ( $new_options as $key => $value ) {
 			switch ( self::$option_var_types[ $key ] ) {
@@ -75,9 +73,9 @@ class Options_Admin extends Options {
 				case 'bool':
 					if ( isset( $new_options[ $key ] ) ) {
 						$new_options[ $key ] = true;
-					} else {
-						$new_options[ $key ] = false;
+						break;
 					}
+					$new_options[ $key ] = false;
 					break;
 				case 'int':
 					$new_options[ $key ] = (int) $new_options[ $key ];
@@ -110,7 +108,7 @@ class Options_Admin extends Options {
 	 * @param array $args Arguments to get data from.
 	 */
 	public function input_text( $args ) {
-		echo '<input id="' . $args['name'] . '" type="text" class="text" name="helpscout_api_key[' . esc_attr( $args['name'] ) . ']" value="' . esc_attr( $args['value'] ) . '"/>';
+		echo '<input id="' . esc_attr( $args['name'] ) . '" type="text" class="text" name="helpscout_api_key[' . esc_attr( $args['name'] ) . ']" value="' . esc_attr( $args['value'] ) . '"/>';
 		$this->input_desc( $args );
 	}
 
@@ -125,7 +123,7 @@ class Options_Admin extends Options {
 			if ( $value === $args['value'] ) {
 				$checked = 'checked';
 			}
-			echo '<input type="radio" name="helpscout_api_key[' . esc_attr( $args['name'] ) . ']" id="' . esc_attr( $args['name'] . '_' . $value ) . '" value="' . esc_attr( $value ) . '" ' . $checked . '/> <label for="' . esc_attr( $args['name'] . '_' . $value ) . '">' . $label . '</label><br/>';
+			echo '<input type="radio" name="helpscout_api_key[' . esc_attr( $args['name'] ) . ']" id="' . esc_attr( $args['name'] . '_' . $value ) . '" value="' . esc_attr( $value ) . '" ' . esc_attr( $checked ) . '/> <label for="' . esc_attr( $args['name'] . '_' . $value ) . '">' . esc_html( $label ) . '</label><br/>';
 		}
 		$this->input_desc( $args );
 	}
@@ -136,7 +134,7 @@ class Options_Admin extends Options {
 	 * @param array $args Arguments to get data from.
 	 */
 	public function input_number( $args ) {
-		echo '<input id="' . $args['name'] . '" type="number" class="text" name="helpscout_api_key[' . esc_attr( $args['name'] ) . ']" value="' . esc_attr( $args['value'] ) . '"/>';
+		echo '<input id="' . esc_attr( $args['name'] ) . '" type="number" class="text" name="helpscout_api_key[' . esc_attr( $args['name'] ) . ']" value="' . esc_attr( $args['value'] ) . '"/>';
 		$this->input_desc( $args );
 	}
 
@@ -148,7 +146,7 @@ class Options_Admin extends Options {
 	public function input_checkbox( $args ) {
 		$val    = Options::get( $args['name'] );
 		$option = isset( $val ) ? $val : false;
-		echo '<input id="' . $args['name'] . '" class="checkbox" type="checkbox" ' . checked( $option, true, false ) . ' name="helpscout_api_key[' . esc_attr( $args['name'] ) . ']"/>';
+		echo '<input id="' . esc_attr( $args['name'] ) . '" class="checkbox" type="checkbox" ' . checked( $option, true, false ) . ' name="helpscout_api_key[' . esc_attr( $args['name'] ) . ']"/>';
 		$this->input_desc( $args );
 	}
 
@@ -160,7 +158,7 @@ class Options_Admin extends Options {
 	public function input_checkbox_array( $args ) {
 		$val    = Options::get( $args['name'] );
 		$option = ( isset( $val[ $args['value'] ] ) && $val[ $args['value'] ] === 'on' );
-		echo '<input id="' . $args['id'] . '" class="checkbox array" type="checkbox" ' . checked( $option, true, false ) . ' name="helpscout_api_key[' . esc_attr( $args['name'] ) . '][' . esc_attr( $args['value'] ) . ']"/>';
+		echo '<input id="' . esc_attr( $args['id'] ) . '" class="checkbox array" type="checkbox" ' . checked( $option, true, false ) . ' name="helpscout_api_key[' . esc_attr( $args['name'] ) . '][' . esc_attr( $args['value'] ) . ']"/>';
 		$this->input_desc( $args );
 	}
 
@@ -177,13 +175,13 @@ class Options_Admin extends Options {
 			add_settings_field(
 				$key,
 				'<label for="' . $key . '">' . $label . '</label>',
-				array( $this, 'input_checkbox' ),
+				[ $this, 'input_checkbox' ],
 				$this->page,
 				$section,
-				array(
+				[
 					'name'  => $key,
 					'value' => Options::get( $key ),
-				)
+				]
 			);
 		}
 	}
@@ -197,6 +195,7 @@ class Options_Admin extends Options {
 		global $wp_roles;
 
 		if ( ! isset( $wp_roles ) ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Overriding only when it's not set.
 			$wp_roles = new \WP_Roles();
 		}
 

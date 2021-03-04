@@ -17,12 +17,17 @@
   ],
   "type": "wordpress-plugin",
   "require": {
-    "composer/installers": "~1.0"
+    "php": "^5.6.20||^7.0",
+    "composer/installers": "^1.9.0"
   },
   "require-dev": {
-    "codeclimate/php-test-reporter": "dev-master",
-    "yoast/yoastcs": "^1.2.2",
-    "phpunit/phpunit": "^4.5 || ^5.7 || ^6.0 || ^7.0"
+    "php-parallel-lint/php-console-highlighter": "^0.5",
+    "php-parallel-lint/php-parallel-lint": "^1.2.0",
+    "symfony/config": "^3.4",
+    "yoast/yoastcs": "^2.1.0",
+    "yoast/php-development-environment": "^1.0",
+    "yoast/wp-test-utils": "^0.2.1",
+    "phpunit/phpunit": "^5.7"
   },
   "autoload": {
     "classmap": [
@@ -30,13 +35,33 @@
       "includes/"
     ]
   },
+  "autoload-dev": {
+    "classmap": [
+      "config/"
+    ]
+  },
   "scripts": {
-    "config-yoastcs": [
-      "\"vendor/bin/phpcs\" --config-set installed_paths ../../../vendor/wp-coding-standards/wpcs,../../../vendor/yoast/yoastcs",
-      "\"vendor/bin/phpcs\" --config-set default_standard Yoast"
-    ],
     "fix-cs": [
       "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf"
+    ],
+    "cs": [
+      "Yoast\\HelpScout_Docs_API\\Config\\Composer\\Actions::check_coding_standards"
+    ],
+    "check-staged-cs": [
+      "@check-cs-warnings --filter=GitStaged"
+    ],
+    "check-branch-cs": [
+      "Yoast\\HelpScout_Docs_API\\Config\\Composer\\\\Actions::check_branch_cs"
+    ],
+    "check-cs": [
+      "@check-cs-warnings -n"
+    ],
+    "check-cs-errors": [
+      "echo You can now just use check-cs, running that command now.",
+      "composer check-cs"
+    ],
+    "check-cs-warnings": [
+      "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs"
     ]
   }
 }

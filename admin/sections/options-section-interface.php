@@ -1,16 +1,12 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin\Sections;
 
 /**
  * Backend Class for the Yoast HelpScout Docs API plugin options.
  */
 interface Options_Section {
+
 	/**
 	 * Registers the options section.
 	 *

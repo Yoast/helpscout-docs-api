@@ -1,16 +1,14 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin\HelpScout_API;
+
+use Yoast\HelpScout_Docs_API\Includes\Options;
 
 /**
  * Perform requests to the HelpScout API.
  */
 class HelpScout_Request {
+
 	/**
 	 * Registers an HTTP request
 	 *
@@ -40,7 +38,7 @@ class HelpScout_Request {
 	public static function get( $endpoint, $args = [] ) {
 		$args = self::add_auth( $args );
 
-		$cache_key = md5( Options::get( 'api-key' ) . $endpoint . json_encode( $args, JSON_UNESCAPED_SLASHES ) );
+		$cache_key = md5( Options::get( 'api-key' ) . $endpoint . wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) );
 		$cache     = get_transient( $cache_key );
 		if ( ! $cache ) {
 
@@ -140,10 +138,10 @@ class HelpScout_Request {
 	private static function add_auth( $args ) {
 		$args['headers'] = array_merge(
 			isset( $args['headers'] ) ? $args['headers'] : [],
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- base64 is required here.
 			[ 'Authorization' => 'Basic ' . base64_encode( Options::get( 'api-key' ) . ':X' ) ]
 		);
 
 		return $args;
 	}
-
 }

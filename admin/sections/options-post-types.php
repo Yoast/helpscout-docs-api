@@ -1,20 +1,24 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin\Sections;
+
+use Yoast\HelpScout_Docs_API\Admin\HelpScout_API\HelpScout_Article;
+use Yoast\HelpScout_Docs_API\Admin\HelpScout_API\HelpScout_Post_Data;
+use Yoast\HelpScout_Docs_API\Admin\HelpScout_API\HelpScout_Redirect;
+use Yoast\HelpScout_Docs_API\Admin\Options_Admin;
+use Yoast\HelpScout_Docs_API\Includes\Options;
 
 /**
  * Adds general options.
  */
 class Options_Post_Types extends Options_Admin implements Options_Section {
+
 	/**
+	 * Admin page slug.
+	 *
 	 * @var string
 	 */
-	var $page = 'helpscout-docs-api-post-types';
+	public $page = 'helpscout-docs-api-post-types';
 
 	/**
 	 * Registers the options section.
@@ -70,7 +74,6 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 			[ $this, 'indexation_section' ],
 			$this->page
 		);
-
 	}
 
 	/**
@@ -79,6 +82,7 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 	 * @return void
 	 */
 	public function indexation_section() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- false positive.
 		if ( Options::get( 'api-key' ) === '' || ! isset( $_GET['page'] ) || $_GET['page'] !== 'helpscout-docs-api' ) {
 			return;
 		}
@@ -92,27 +96,30 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 
 		$non_indexed_post_ids = [];
 		$non_indexed_count    = [];
-		$excluded_posts       = $wpdb->get_col( "SELECT post_id FROM wp_postmeta WHERE meta_key IN ( '_yoast_wpseo_meta-robots-noindex', 'search_exclude' )" );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Deliberate decision for speed reasons to do this here.
+		$excluded_posts = $wpdb->get_col( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key IN ( '_yoast_wpseo_meta-robots-noindex', 'search_exclude' )" );
 
 		foreach ( $enabled_post_types as $post_type_name => $on ) {
 			$post_type   = get_post_type_object( $post_type_name );
 			$count_total = wp_count_posts( $post_type_name );
 
-			$query                                   = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = '%s' AND post_status = 'publish' AND post_password = '' AND ID NOT IN ( SELECT post_id FROM $wpdb->postmeta WHERE meta_key = '%s' )", $post_type_name, HelpScout_Post_Data::$meta_key );
-			$non_indexed_post_ids[ $post_type_name ] = $wpdb->get_col( $query );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Deliberate decision for speed reasons to do this here.
+			$non_indexed_post_ids[ $post_type_name ] = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_status = 'publish' AND post_password = '' AND ID NOT IN ( SELECT post_id FROM $wpdb->postmeta WHERE meta_key = %s )", $post_type_name, HelpScout_Post_Data::$meta_key ) );
 			$non_indexed_post_ids[ $post_type_name ] = array_diff( $non_indexed_post_ids[ $post_type_name ], $excluded_posts );
 			$non_indexed_count[ $post_type_name ]    = count( $non_indexed_post_ids[ $post_type_name ] );
 
 			echo '<p>';
-			printf( 'There are %d %s, of which %d are not indexed. ', $count_total->publish, $post_type->labels->name, $non_indexed_count[ $post_type_name ] );
+			printf( 'There are %d %s, of which %d are not indexed. ', esc_html( $count_total->publish ), esc_html( $post_type->labels->name ), esc_html( $non_indexed_count[ $post_type_name ] ) );
 			if ( count( $non_indexed_post_ids[ $post_type_name ] ) > 0 ) {
-				printf( '<a href="' . admin_url( 'options-general.php?page=helpscout-docs-api&index=' . $post_type->name ) . '" class="button">Index %s</a> <br/>', $post_type->labels->name );
+				printf( '<a href="' . esc_attr( admin_url( 'options-general.php?page=helpscout-docs-api&index_nonce=' . wp_create_nonce( 'helpscout-index' ) . '&index=' . $post_type->name ) ) . '" class="button">Index %s</a> <br/>', esc_html( $post_type->labels->name ) );
 			}
 			echo '</p>';
 		}
 
+		$nonce = filter_input( INPUT_GET, 'index_nonce', FILTER_SANITIZE_STRING );
 		foreach ( $enabled_post_types as $post_type_name => $on ) {
-			if ( isset( $_GET['index'] ) && $_GET['index'] === $post_type_name ) {
+			if ( isset( $_GET['index'] ) && wp_verify_nonce( $nonce, 'helpscout-index' ) && $_GET['index'] === $post_type_name ) {
 				if ( $non_indexed_count[ $post_type_name ] > 0 ) {
 					foreach ( $non_indexed_post_ids[ $post_type_name ] as $post_id ) {
 						HelpScout_Article::create( $post_id );
@@ -134,5 +141,4 @@ class Options_Post_Types extends Options_Admin implements Options_Section {
 	public function section_post_types_intro() {
 		$this->intro_helper( __( 'Select which post type(s) you\'d like to sync to HelpScout.', 'helpscout-docs-api' ) );
 	}
-
 }

@@ -1,11 +1,6 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin;
 
 /**
  * Class for the HelpScout Docs API plugin admin page.
@@ -18,8 +13,8 @@ class Admin_Page extends Admin {
 	public function __construct() {
 		new Options_Admin();
 
-		add_action( 'admin_print_scripts', array( $this, 'config_page_scripts' ) );
-		add_action( 'admin_print_styles', array( $this, 'config_page_styles' ) );
+		add_action( 'admin_print_scripts', [ $this, 'config_page_scripts' ] );
+		add_action( 'admin_print_styles', [ $this, 'config_page_styles' ] );
 	}
 
 	/**
@@ -33,7 +28,7 @@ class Admin_Page extends Admin {
 	 * Enqueue the scripts for the admin page.
 	 */
 	public function config_page_scripts() {
-		wp_enqueue_script( 'yseo-gc-admin-js', HS_DOCS_API_DIR_URL . 'js/admin.min.js', null, HS_DOCS_API_PLUGIN_VERSION );
+		wp_enqueue_script( 'yseo-gc-admin-js', HS_DOCS_API_DIR_URL . 'js/admin.min.js', null, HS_DOCS_API_PLUGIN_VERSION, true );
 	}
 
 	/**
@@ -110,5 +105,4 @@ class Admin_Page extends Admin {
 
 		$this->rss_news( 'https://yoast.com/feed/', __( 'Latest news from Yoast', 'helpscout-docs-api' ), $extra_links );
 	}
-
 }

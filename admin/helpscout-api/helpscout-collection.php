@@ -1,18 +1,26 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin\HelpScout_API;
+
+use Yoast\HelpScout_Docs_API\Includes\Options;
 
 /**
  * CRUD for Collections in HelpScout docs.
  */
 class HelpScout_Collection {
+
+	/**
+	 * The endpoint for the Collections API.
+	 *
+	 * @var string
+	 */
 	private static $endpoint = 'collections';
 
+	/**
+	 * The option key for the collections option.
+	 *
+	 * @var string
+	 */
 	private static $option_key = 'collections';
 
 	/**
@@ -31,7 +39,7 @@ class HelpScout_Collection {
 			'name'   => $collection_name,
 		];
 		$args              = [
-			'body' => json_encode( $body, JSON_UNESCAPED_SLASHES ),
+			'body' => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		];
 		$resp              = HelpScout_Request::post( self::$endpoint, $args );
 
@@ -103,5 +111,4 @@ class HelpScout_Collection {
 
 		return true;
 	}
-
 }
