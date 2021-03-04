@@ -60,7 +60,8 @@ class Options_Admin extends Options {
 	 * @return array
 	 */
 	public function sanitize_options_on_save( $new_options ) {
-		if ( wp_verify_nonce( '_wpnonce', 'helpscout-docs-api' ) && isset( $_POST['hs_docs_active_tab'] ) ) {
+		$nonce = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+		if ( wp_verify_nonce( $nonce, 'helpscout-docs-api' ) && isset( $_POST['hs_docs_active_tab'] ) ) {
 			$active_tab = filter_input( INPUT_POST, 'hs_docs_active_tab', FILTER_SANITIZE_STRING );
 			set_transient( 'hs_docs_active_tab', $active_tab );
 		}
