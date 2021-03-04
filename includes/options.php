@@ -1,11 +1,6 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Includes;
 
 /**
  * Options Class for the Yoast HelpScout Docs API plugin.
@@ -59,7 +54,7 @@ class Options {
 	 *
 	 * @var array
 	 */
-	public static $options = array();
+	public static $options = [];
 
 	/**
 	 * Class constructor.
@@ -134,7 +129,7 @@ class Options {
 	 * @return mixed The option.
 	 */
 	public static function get( $key ) {
-		if ( self::$options === array() ) {
+		if ( self::$options === [] ) {
 			self::load_options();
 		}
 

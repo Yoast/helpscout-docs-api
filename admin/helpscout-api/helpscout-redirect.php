@@ -1,16 +1,17 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin\HelpScout_API;
 
 /**
  * CRUD for Redirects in HelpScout docs.
  */
 class HelpScout_Redirect {
+
+	/**
+	 * The redirects endpoint.
+	 *
+	 * @var string
+	 */
 	private static $endpoint = 'redirects';
 
 	/**
@@ -43,7 +44,7 @@ class HelpScout_Redirect {
 	/**
 	 * Update a post's HelpScout data.
 	 *
-	 * @param \WP_Error|array $resp    A WP Remote request response
+	 * @param \WP_Error|array $resp    A WP Remote request response.
 	 * @param int             $post_id The ID of the post to create or update in HelpScout docs.
 	 *
 	 * @return array The new HelpScout data.
@@ -116,7 +117,7 @@ class HelpScout_Redirect {
 		];
 
 		return [
-			'body' => json_encode( $body, JSON_UNESCAPED_SLASHES ),
+			'body' => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 		];
 	}
 }

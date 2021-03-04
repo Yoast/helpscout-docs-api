@@ -1,9 +1,6 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
+
+namespace Yoast\HelpScout_Docs_API\Admin\Views;
 
 ?><p><?php esc_html_e( 'Why not do any or all of the following:', 'helpscout-docs-api' ); ?></p>
 <ul>

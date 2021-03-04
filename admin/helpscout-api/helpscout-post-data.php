@@ -1,16 +1,17 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin\HelpScout_API;
 
 /**
  * CRUD for HelpScout docs post data stored in WP.
  */
 class HelpScout_Post_Data {
+
+	/**
+	 * The meta key we're using to store our HelpScout data.
+	 *
+	 * @var string
+	 */
 	public static $meta_key = '_helpscout_data';
 
 	/**
@@ -27,7 +28,7 @@ class HelpScout_Post_Data {
 	/**
 	 * Sets a post's HelpScout data.
 	 *
-	 * @param int $post_id The ID of the post we set data for.
+	 * @param int   $post_id The ID of the post we set data for.
 	 * @param array $value The new data.
 	 *
 	 * @return int|bool The new meta field ID if a field with the given key didn't exist and was
@@ -47,5 +48,4 @@ class HelpScout_Post_Data {
 	public static function delete( $post_id ) {
 		return delete_post_meta( $post_id, self::$meta_key );
 	}
-
 }

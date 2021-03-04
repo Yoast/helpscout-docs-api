@@ -16,7 +16,9 @@
  * Text Domain: helpscout-docs-api
  */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API;
+
+use Yoast\HelpScout_Docs_API\Admin\Admin;
 
 if ( ! function_exists( 'add_filter' ) ) {
 	header( 'Status: 403 Forbidden' );
@@ -46,7 +48,7 @@ class Control {
 			require __DIR__ . '/vendor/autoload.php';
 		}
 
-		add_action( 'plugins_loaded', array( $this, 'init' ) );
+		add_action( 'plugins_loaded', [ $this, 'init' ] );
 	}
 
 	/**

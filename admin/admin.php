@@ -1,16 +1,12 @@
 <?php
-/**
- * HelpScout_DOCS API plugin file.
- *
- * @package HelpScout_Docs_API
- */
 
-namespace HelpScout_Docs_API;
+namespace Yoast\HelpScout_Docs_API\Admin;
 
 /**
  * Backend Class the Yoast HelpScout Docs API plugin.
  */
 class Admin {
+
 	/**
 	 * Menu slug for WordPress admin.
 	 *
@@ -51,9 +47,8 @@ class Admin {
 			__( 'HelpScout API', 'helpscout-docs-api' ),
 			'manage_options',
 			$this->hook,
-			array( new Admin_Page(), 'config_page' )
+			[ new Admin_Page(), 'config_page' ]
 		);
-
 	}
 
 	/**
