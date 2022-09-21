@@ -2,7 +2,6 @@
 .svn/
 .wordpress-svn/
 css/dist/*.map
-css/dist/*.css
 js/*\.map
 artifact/
 artifact\.zip
