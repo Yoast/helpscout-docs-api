@@ -97,7 +97,7 @@ class Admin {
 	 */
 	public function transition_post_status( $new_status, $old_status, $post ) {
 		$enabled_post_types = Options::get( 'post-types' );
-		if ( $enabled_post_types[ $post->post_type ] !== 'on' ) {
+		if ( ! isset( $enabled_post_types[ $post->post_type ] ) || $enabled_post_types[ $post->post_type ] !== 'on' ) {
 			return;
 		}
 
