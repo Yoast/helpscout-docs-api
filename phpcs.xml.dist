@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         name="Yoast HelpScout Docs API"
+         xsi:noNamespaceSchemaLocation="./vendor/squizlabs/php_codesniffer/phpcs.xsd">
+
+    <description>Yoast HelpScout Docs API rules for PHP_CodeSniffer</description>
+
+    <!--
+    #############################################################################
+    COMMAND LINE ARGUMENTS
+    https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
+    #############################################################################
+    -->
+
+    <file>.</file>
+
+    <!-- Exclude dependency related files and generated files from being scanned. -->
+    <exclude-pattern type="relative">^artifact/*\.php$</exclude-pattern>
+
+    <!-- Only check PHP files. -->
+    <arg name="extensions" value="php"/>
+
+    <!-- Show progress, show the error codes for each message (source). -->
+    <arg value="sp"/>
+
+    <!-- Strip the filepaths down to the relevant bit. -->
+    <arg name="basepath" value="."/>
+
+    <!-- Check up to 12 files simultaneously. -->
+    <arg name="parallel" value="12"/>
+
+    <!-- Cache the results between runs. -->
+    <arg name="cache" value="./.cache/phpcs-free.cache"/>
+
+
+    <!--
+    #############################################################################
+    USE THE YoastCS RULESET
+    #############################################################################
+    -->
+
+    <rule ref="Yoast">
+        <properties>
+            <!-- Provide the plugin specific prefixes for all naming related sniffs. -->
+            <property name="prefixes" type="array">
+                <element value="Yoast\HelpScout_Docs_API"/>
+                <element value="HS_DOCS_API"/>
+            </property>
+        </properties>
+    </rule>
+
+
+    <!--
+    #############################################################################
+    SNIFF SPECIFIC CONFIGURATION
+    #############################################################################
+    -->
+
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="helpscout-docs-api"/>
+            </property>
+        </properties>
+    </rule>
+
+    <rule ref="WordPress.Arrays.MultipleStatementAlignment">
+        <properties>
+            <property name="maxColumn" value="70"/>
+        </properties>
+    </rule>
+
+    <rule ref="Yoast.Files.FileName">
+        <properties>
+            <property name="excluded_files_strict_check" type="array">
+                <!-- Don't trigger on the main file(s) as renaming it would deactivate the plugin. -->
+                <element value="helpscout-api-docs.php"/>
+            </property>
+        </properties>
+    </rule>
+    <!--
+    ##########################################################################
+    SELECTIVE EXCLUSIONS
+    Exclude specific files for specific sniffs.
+    #############################################################################
+    -->
+
+    <rule ref="Yoast.Commenting.FileComment.Unnecessary">
+        <exclude-pattern>helpscout-api-docs.php</exclude-pattern>
+    </rule>
+    <rule ref="Yoast.Yoast.AlternativeFunctions.json_encode_wp_json_encodeWithAdditionalParams">
+        <exclude-pattern>/*</exclude-pattern>
+    </rule>
+    <!-- Composer scripts are not WordPress and have console output. -->
+    <rule ref="WordPress.Security.EscapeOutput.OutputNotEscaped">
+        <exclude-pattern>/config/composer/*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.PHP.DiscouragedPHPFunctions">
+        <exclude-pattern>/config/composer/*</exclude-pattern>
+    </rule>
+</ruleset>
