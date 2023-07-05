@@ -143,6 +143,24 @@ class HelpScout_Article {
 		static $post_types;
 		if ( ! isset( $post_types[ $post_type ] ) ) {
 			$post_types[ $post_type ] = HelpScout_Collection::get_id( $post_type );
+
+			if ( !$post_types[ $post_type ] ) {
+				$post_type_temp = $post_type;
+
+				if($post_type_temp === 'post') {
+					$post_type_temp = 'berichten';
+				}
+
+				$results = HelpScout_Request::get('collections');
+				$items = json_decode($results['body'], true)['collections']['items'];
+
+				foreach($items as $item) {
+					if($item['slug'] === $post_type_temp) {
+						$post_types[ $post_type ] = $item['id'];
+					}
+				}
+			}
+
 			if ( ! $post_types[ $post_type ] ) {
 				$post_types[ $post_type ] = HelpScout_Collection::create( $post_type );
 			}
